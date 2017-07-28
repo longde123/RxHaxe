@@ -80,7 +80,6 @@ class SubscribeInterval<T> extends Observable<Int>
     override public function subscribe( observer:IObserver<Int>):ISubscription{
         var counter =  AtomicData.create( 0);
         var succ=function (count:Int):Int{
-            trace(count);//todo  if not trace test_with_test_scheduler error why?
             observer.on_next(count);
             return count+1;
         }
