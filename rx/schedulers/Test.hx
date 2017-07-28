@@ -32,16 +32,12 @@ class TestBase implements Base {
     public function trigger_actions (target_time:Float){ 
       
         while(!queue.isEmpty() ){ 
-             var timed_action= queue.first();  
-            if( timed_action.exec_time < target_time){
-                    queue.pop();
-                    time = timed_action.exec_time== 0 ? time : timed_action.exec_time;
-                    timed_action.discardable_action ();                    
-                   
-            }else
-            {
-                break;
-            }    
+            var timed_action= queue.first();  
+            if (timed_action.exec_time> target_time)   break;    
+            queue.pop();
+            time = timed_action.exec_time== 0 ? time : timed_action.exec_time;
+            timed_action.discardable_action ();                    
+           
         }
         time = target_time;
        
