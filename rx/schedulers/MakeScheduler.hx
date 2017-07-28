@@ -52,7 +52,7 @@ class  MakeScheduler   implements IScheduler  {
     }
     function loop (completed:AtomicData<Bool>, period:Null<Float>, action:Void-> ISubscription ): ISubscription { 
         if   ( !AtomicData.unsafe_get(completed)){
-            var started_at = now ();
+            var started_at = baseScheduler.now ();
             var unsubscribe1 = action () ;
             var time_taken = (now ()) -started_at;
             var delay = period -  time_taken; 
