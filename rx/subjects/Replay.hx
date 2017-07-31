@@ -7,12 +7,14 @@ import rx.disposables.ISubscription;
 import rx.notifiers.Notification;
 import rx.Subscription;
 import rx.Utils;
+import rx.Observable;
+
 typedef ReplayState<T>={
     var queue: List<Notification<T>>;
     var  is_stopped: Bool;
     var observers: Array<IObserver<T>>;
 }
-class  Replay<T>  implements  ISubject<T>
+class  Replay<T> extends Observable<T>  implements  ISubject<T>
 { 
      /* Implementation based on:
      * https://rx.codeplex.com/SourceControl/latest#Rx.NET/Source/System.Reactive.Linq/Reactive/Subjects/ReplaySubject.cs
@@ -27,14 +29,14 @@ class  Replay<T>  implements  ISubject<T>
         return new Replay<T>();
     } 
     public function  new () {
-
+        super();
         state = AtomicData.create({
                                         queue :new List<Notification<T>>(),
                                         is_stopped : false,
                                         observers : []
                                         });
     }
-    public function subscribe( _observer:IObserver<T>):ISubscription{
+    override public function subscribe( _observer:IObserver<T>):ISubscription{
  
         sync(function(s:ReplayState<T>){
                 var observers =  s.observers.push(_observer);

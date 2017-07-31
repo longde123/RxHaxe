@@ -2,11 +2,15 @@ package rx;
 import rx.observables.IObservable;
 import rx.observers.IObserver;
 import rx.subjects.ISubject;
+import rx.subjects.Async;
+import rx.subjects.Replay;
+import rx.subjects.Behavior;
 import rx.AtomicData;
 import rx.disposables.ISubscription;
 import rx.Subscription;
 import rx.Utils;
-class  Subject<T>  implements  ISubject<T>
+import rx.Observable;
+class  Subject<T> extends Observable<T>  implements  ISubject<T>
 { 
    
 
@@ -20,16 +24,31 @@ class  Subject<T>  implements  ISubject<T>
          
         return new Subject<T>();
     } 
+    static public function  async<T>(  ){
+         
+        return Async.create();
+    } 
+    static public function  replay<T>(  ){
+         
+        return Replay.create();
+    } 
+    static public function  behavior<T>( default_value:T  ){
+         
+        return Behavior.create(default_value);
+    } 
+
 
     public function new(){
+        super();
         observers = AtomicData.create([]);
+
     }
     
     inline function update(f:Array<IObserver<T>>->Array<IObserver<T>>) return  AtomicData.update(f, observers);
     inline function sync(f:Array<IObserver<T>>->Array<IObserver<T>>) return  AtomicData.synchronize(f,observers);
     inline function iter(f:IObserver<T>->IObserver<T>) return   sync(function(os :Array<IObserver<T>> ) return os.map(f));
 
-    public function subscribe( _observer:IObserver<T>):ISubscription{
+    override public function subscribe( _observer:IObserver<T>):ISubscription{
         update (function(os:Array<IObserver<T>>) {os.push(_observer); return os;});
         return  Subscription.create(function() { update(Utils.unsubscribe_observer.bind(_observer)); });
     }

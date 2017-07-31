@@ -15,6 +15,7 @@ import rx.Scheduler;
 import rx.Utils;
 import rx.schedulers.IScheduler;
 import rx.observables.MakeScheduled;
+import rx.Subject;
 class SchedulerBase implements IScheduler {
     public var schedule_count:Int;
     public function new(){
@@ -49,7 +50,7 @@ class ScheduledObservable extends  MakeScheduled
    
 
 class TestObservable extends haxe.unit.TestCase {
-
+ 
     public  function test_of_enum  (){
         var items = ["one", "two","three"] ;
         var observable = Observable.currentThread.of_enum( items) ;    
@@ -383,7 +384,7 @@ class TestObservable extends haxe.unit.TestCase {
 
     public  function  test_return(){ 
      
-        var observable = Observable.next( 42);
+        var observable = Observable.of_return( 42);
           
         var state = TestHelper.create (); 
         observable.subscribe(state.observer());
@@ -543,7 +544,6 @@ class TestObservable extends haxe.unit.TestCase {
        
     } 
      public  function  test_never(){ 
-     trace("test_never");
         var observable = Observable.never();
           
         var state = TestHelper.create (); 
@@ -555,7 +555,6 @@ class TestObservable extends haxe.unit.TestCase {
     }  
  
     public  function  test_subscribe_on_this  (){ 
-          trace("test_subscribe_on_this");
         var state  = TestHelper.create ();
         var schedule =  new ScheduledObservable() ;     
         var schedulerBase     = cast(schedule.scheduler, SchedulerBase);      
@@ -600,7 +599,162 @@ class TestObservable extends haxe.unit.TestCase {
         assertEquals( true,state.is_completed());
         assertEquals( false,state.is_on_error()); 
     } 
+ 
+    public  function test_average1(){
 
+        var average_observable =  Observable.fromRange(3, 9, 2).average(); 
+        var state = TestHelper.create (); 
+        average_observable.subscribe(state.observer());  
+        assertEquals([5].toString(),state.on_next_values().toString());
+
+        assertEquals( true,state.is_completed());
+        assertEquals( false,state.is_on_error());    
+    }
+    public  function test_average2(){
+
+        var average_observable =  Observable.of_enum([-1, 0, 1]).average(); 
+        var state = TestHelper.create (); 
+        average_observable.subscribe(state.observer());  
+        assertEquals([0].toString(),state.on_next_values().toString());
+
+        assertEquals( true,state.is_completed());
+        assertEquals( false,state.is_on_error());    
+    }
+ 
+     public  function  test_amb_one(){ 
+
+        var amb_observable =  Observable.fromRange(0,3).amb(null); 
+        var state = TestHelper.create (); 
+        amb_observable.subscribe(state.observer());  
+
+        assertEquals([0,1,2].toString(),state.on_next_values().toString());
+        assertEquals( true,state.is_completed());
+        assertEquals( false,state.is_on_error());    
+     }
+
+    public  function  test_amb (){   
+
+        var a = Subject.create();
+        var b = Subject.create();   
+        var amb_observable = a.amb(b); 
+        var state = TestHelper.create (); 
+        amb_observable.subscribe(state.observer());  
+
+
+        
+
+
+        b.on_next(4);
+        a.on_next(1);
+        b.on_next(5);
+        b.on_next(6);
+        b.on_completed();
+        a.on_next(2);
+        a.on_next(3);
+        a.on_completed();
+
+        assertEquals( [4,5,6].toString(),state.on_next_values().toString());
+        assertEquals( true,state.is_completed());
+        assertEquals( false,state.is_on_error()); 
+    } 
+
+    public  function  test_buffer (){   
+
+        var buffer_observable = Observable.fromRange(0,5).buffer(2); 
+        var state = TestHelper.create (); 
+        buffer_observable.subscribe(state.observer());  
+
+        assertEquals([[0,1],[2,3],[4]].toString(),state.on_next_values().toString());
+        assertEquals( true,state.is_completed());
+        assertEquals( false,state.is_on_error()); 
+    } 
+    public  function  test_buffer_error (){   
+
+         var observable = Observable.create(function( observer:IObserver<Int>) {
+            observer.on_next(1);
+            observer.on_next(2);
+            observer.on_next(3);
+            observer.on_error("oops");
+            return Subscription.empty();
+        }); 
+        var buffer_observable = observable.buffer(2); 
+        var state = TestHelper.create (); 
+        buffer_observable.subscribe(state.observer());  
+
+        assertEquals([[1,2],[3]].toString(),state.on_next_values().toString());
+        assertEquals(false,state.is_completed());
+        assertEquals(true,state.is_on_error()); 
+    } 
+
+ public  function  test_catch_error (){   
+  
+        var observable = Observable.create(function( observer:IObserver<Int>) {
+            observer.on_next(1);
+            observer.on_next(2);
+            observer.on_error("ohno");
+           // observer.on_next(3);
+            //observer.on_completed();
+            return Subscription.empty();
+        }); 
+
+        var __handler= Subject.replay();
+            __handler.on_next(5);
+        var catch_observable = observable.of_catch(function(e:String) return __handler);
+
+            __handler.on_next(6);
+            __handler.on_next(7);
+
+        var state = TestHelper.create (); 
+        catch_observable.subscribe(state.observer());  
+
+        assertEquals([1,2,5,6,7].toString(),state.on_next_values().toString());
+        assertEquals(false,state.is_completed());
+        assertEquals(true,state.is_on_error()); 
+    } 
+ 
+     public  function  test_combineLatest  (){  
+
+        var observableA = Observable.of('a');
+        var observableB = Observable.of('b');
+        var observableC = Observable.of('c'); 
+        var combinator:Array<String>->String=function(args:Array<String>){ 
+            return args[0]+args[1]+args[2];
+        };
+        var combineLatest_observable = observableA.combineLatest([observableB, observableC], combinator);
+
+        var state = TestHelper.create (); 
+        combineLatest_observable.subscribe(state.observer());  
+
+        assertEquals(["abc"].toString(),state.on_next_values().toString());
+        assertEquals(true,state.is_completed());
+        assertEquals(false,state.is_on_error()); 
+    } 
+    public  function  test_combineLatest_values_complete (){  
+
+        var observableA = Subject.create();
+        var observableB = Subject.create();
+        var combinator:Array<Int>->Int=function(args:Array<Int>){ 
+            trace(args);
+            return args[0]+args[1];
+        };
+        var combineLatest_observable = observableA.combineLatest([observableB], combinator); 
+      
+        var state = TestHelper.create (); 
+        combineLatest_observable.subscribe(state.observer());  
+
+        observableA.on_next(1);
+        observableB.on_next(2);
+        observableB.on_next(3);
+        observableA.on_next(4); 
+
+        observableA.on_completed();
+        observableB.on_completed();
+        assertEquals([3,4,7].toString(),state.on_next_values().toString());
+        assertEquals(true,state.is_completed());
+        assertEquals(false,state.is_on_error()); 
+    } 
+    
+    
 }
 
  

@@ -8,11 +8,12 @@ import rx.disposables.ISubscription;
 import rx.notifiers.Notification;
 import rx.Subscription;
 import rx.Utils;
+import rx.Observable;
 typedef BehaviorState<T>={
     var last_notification:  Notification<T> ; 
     var observers: Array<IObserver<T>>;
 }
-class  Behavior<T>  implements  ISubject<T>
+class  Behavior<T> extends Observable<T>  implements  ISubject<T>
 { 
      static public function  create<T>( default_value:T ){
          
@@ -26,13 +27,13 @@ class  Behavior<T>  implements  ISubject<T>
     inline function sync(f) return AtomicData.synchronize(f,state);
 
     public function new(default_value:T){
-
-      state = AtomicData.create({
+        super();
+        state = AtomicData.create({
                                 last_notification : OnNext(default_value),
                                 observers : []});
 
     }
-    public function subscribe( _observer:IObserver<T>):ISubscription{      
+    override public function subscribe( _observer:IObserver<T>):ISubscription{      
         sync(function(s:BehaviorState<T>){
             var observers =  s.observers.push(_observer);
             //AtomicData.unsafe_set { s with observers } state; 

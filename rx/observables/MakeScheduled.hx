@@ -35,15 +35,15 @@ class SubscribeOfEnum<T>  extends Observable<T>
 {
     var  _enum:Array<T>;
     var scheduler:IScheduler;
-    var index:Int;
+  
     public function new(scheduler:IScheduler, _enum:Array<T>)
     {
          super();
          this._enum=_enum;
          this.scheduler=scheduler;
-         index=0;
     } 
     override public function subscribe( observer:IObserver<T>):ISubscription{
+        var index:Int=0;
         return scheduler.schedule_recursive(function(self:Void->ISubscription){ 
             try{
                 if(index>=_enum.length){
@@ -79,8 +79,8 @@ class SubscribeInterval<T> extends Observable<Int>
   
     override public function subscribe( observer:IObserver<Int>):ISubscription{
         var counter =  AtomicData.create( 0);
-        var succ=function (count:Int):Int{
-            trace(count);//todo  if not trace test_with_test_scheduler error why?
+        var succ=function (count:Int):Int{ 
+            //trace(count);
             observer.on_next(count);
             return count+1;
         }

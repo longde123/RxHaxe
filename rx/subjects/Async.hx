@@ -9,6 +9,7 @@ import rx.disposables.ISubscription;
 import rx.notifiers.Notification;
 import rx.Subscription;
 import rx.Utils;
+import rx.Observable;
 typedef AsyncState<T>={
     @:optional  var last_notification:  Notification<T> ; 
     var is_stopped: Bool;
@@ -18,7 +19,7 @@ typedef AsyncState<T>={
      * https://rx.codeplex.com/SourceControl/latest#Rx.NET/Source/System.Reactive.Linq/Reactive/Subjects/AsyncSubject.cs
      * https://github.com/Netflix/RxJava/blob/master/rxjava-core/src/main/java/rx/subjects/AsyncSubject.java
      */
-class  Async<T>  implements  ISubject<T>
+class  Async<T> extends Observable<T>  implements  ISubject<T>
 { 
    var state :AtomicData<AsyncState<T>>;
    static public function  create<T>(  ){
@@ -47,6 +48,7 @@ class  Async<T>  implements  ISubject<T>
     inline function sync(f) return AtomicData.synchronize(f,state);
     inline function   if_not_stopped ( f ) return sync (function(s) return if (! s.is_stopped)  f(s));
     public function new () {
+        super();
         state = AtomicData.create({
             last_notification : null,
             is_stopped : false,
@@ -54,7 +56,7 @@ class  Async<T>  implements  ISubject<T>
         });
     }
  
-  public function subscribe( _observer:IObserver<T>):ISubscription{      
+    override  public function subscribe( _observer:IObserver<T>):ISubscription{      
         sync(function(s:AsyncState<T>){
             var observers =  s.observers.push(_observer);
             //AtomicData.unsafe_set { s with observers } state; 
