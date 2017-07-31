@@ -629,7 +629,7 @@ class TestObservable extends haxe.unit.TestCase {
         assertEquals( false,state.is_completed());
         assertEquals( true,state.is_on_error());    
     }
-    */
+ 
      public  function  test_amb_one(){ 
 
         var amb_observable =  Observable.fromRange(0,3).amb(null); 
@@ -849,6 +849,52 @@ class TestObservable extends haxe.unit.TestCase {
         assertEquals(false,state.is_on_error()); 
     }    
     
+
+   */
+    public  function  test_contains(){  
+
+        var observable = Observable.fromRange(0,5);  
+        var contains_observable = observable.contains(3);     
+        var state = TestHelper.create (); 
+        contains_observable.subscribe(state.observer());   
+        assertEquals([true].toString(),state.on_next_values().toString());
+        assertEquals(true,state.is_completed());
+        assertEquals(false,state.is_on_error()); 
+    }
+    public  function  test_contains_errors(){  
+
+        var observable = Observable.error("oh ");
+        var contains_observable = observable.contains(3);     
+        var state = TestHelper.create (); 
+        contains_observable.subscribe(state.observer());   
+        assertEquals([].toString(),state.on_next_values().toString());
+        assertEquals(false,state.is_completed());
+        assertEquals(true,state.is_on_error()); 
+    }
+    public  function  test_contains_no_values(){  
+
+        var observable = Observable.empty();
+        var contains_observable = observable.contains(3);     
+        var state = TestHelper.create (); 
+        contains_observable.subscribe(state.observer());   
+        assertEquals([false].toString(),state.on_next_values().toString());
+        assertEquals(true,state.is_completed());
+        assertEquals(false,state.is_on_error()); 
+    }
+    public  function  test_contains_null(){  
+  
+        var contains_observable =    Observable.create(function( observer:IObserver<Null<Int>>) {
+            observer.on_next(null); 
+            observer.on_completed();
+            return Subscription.empty();
+        });
+
+        var state = TestHelper.create (); 
+        contains_observable.subscribe(state.observer());   
+        assertEquals([null].toString(),state.on_next_values().toString());
+        assertEquals(true,state.is_completed());
+        assertEquals(false,state.is_on_error()); 
+    }
 }
 
  
