@@ -79,12 +79,8 @@ class SubscribeInterval<T> extends Observable<Int>
   
     override public function subscribe( observer:IObserver<Int>):ISubscription{
         var counter =  AtomicData.create( 0);
-<<<<<<< HEAD
         var succ=function (count:Int):Int{ 
             //trace(count);
-=======
-        var succ=function (count:Int):Int{
->>>>>>> c324593c8e0ebfbb85d12c9db0c69074bb2122e9
             observer.on_next(count);
             return count+1;
         }

@@ -24,8 +24,8 @@ class Amb<T> extends Observable<T>
         var __unsubscribe = Composite.create();
         __unsubscribe.add(subscriptionA);
         __unsubscribe.add(subscriptionB);
-        var unsubscribeA= function(){ if (subscriptionA!=null)   subscriptionA.unsubscribe();};
-        var unsubscribeB= function(){ if (subscriptionB!=null)   subscriptionB.unsubscribe();};
+        inline function unsubscribeA(){ subscriptionA.unsubscribe();};
+        inline function unsubscribeB(){ subscriptionB.unsubscribe();};
         var observerA= Observer.create(
                     function(){ 
                         unsubscribeB();

@@ -1,6 +1,7 @@
 package rx.observables;
 import rx.observables.IObservable;
 import rx.disposables.ISubscription; 
+import rx.disposables.Composite; 
 import rx.observers.IObserver;
 import rx.notifiers.Notification;
 import rx.Observer;
@@ -16,9 +17,11 @@ class Append<T> extends Observable<T>
          _source2 = source2;
     } 
     override public function subscribe( observer:IObserver<T>):ISubscription{ 
+        
+         var __unsubscribe = Composite.create(); 
          var o1_observer = Observer.create(
                 function(){ 
-                    _source2.subscribe(observer);
+                     __unsubscribe.add(_source2.subscribe(observer));
                 },
                 observer.on_error,
                 function(v:T){ 
@@ -26,7 +29,8 @@ class Append<T> extends Observable<T>
                 }
          );
    
-        return _source1.subscribe(o1_observer);
+        __unsubscribe.add(_source1.subscribe(o1_observer));
+        return __unsubscribe;
     }
 }
  

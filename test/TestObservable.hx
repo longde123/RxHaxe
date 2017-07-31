@@ -50,7 +50,7 @@ class ScheduledObservable extends  MakeScheduled
    
 
 class TestObservable extends haxe.unit.TestCase {
- 
+/*
     public  function test_of_enum  (){
         var items = ["one", "two","three"] ;
         var observable = Observable.currentThread.of_enum( items) ;    
@@ -620,7 +620,16 @@ class TestObservable extends haxe.unit.TestCase {
         assertEquals( true,state.is_completed());
         assertEquals( false,state.is_on_error());    
     }
- 
+    public  function test_average_error(){
+
+        var average_observable =  Observable.error("throw").average(); 
+        var state = TestHelper.create (); 
+        average_observable.subscribe(state.observer());   
+
+        assertEquals( false,state.is_completed());
+        assertEquals( true,state.is_on_error());    
+    }
+    */
      public  function  test_amb_one(){ 
 
         var amb_observable =  Observable.fromRange(0,3).amb(null); 
@@ -753,7 +762,92 @@ class TestObservable extends haxe.unit.TestCase {
         assertEquals(true,state.is_completed());
         assertEquals(false,state.is_on_error()); 
     } 
-    
+    public  function  test_combineLatest_complete (){  
+        var observableA = Subject.create();
+        var observableB = Subject.create();
+        var combinator:Array<Int>->Int=function(args:Array<Int>){ 
+            trace(args);
+            return args[0]+args[1];
+        };
+        var combineLatest_observable = observableA.combineLatest([observableB], combinator); 
+        var state = TestHelper.create (); 
+        combineLatest_observable.subscribe(state.observer()); 
+        assertEquals(false,state.is_completed());
+        observableA.on_next(1);
+        assertEquals(false,state.is_completed());
+        observableB.on_next(2);
+        assertEquals(false,state.is_completed());
+        observableB.on_completed();
+        assertEquals(false,state.is_completed());
+        observableA.on_completed();
+
+        assertEquals(true,state.is_completed());
+        assertEquals(false,state.is_on_error()); 
+
+    }
+    public  function  test_combineLatest_errors(){  
+        var observableA = Subject.create();
+        var observableB = Subject.create();
+        var combinator:Array<Int>->Int=function(args:Array<Int>){ 
+            trace(args);
+            return args[0]+args[1];
+        };
+        var combineLatest_observable = observableA.combineLatest([observableB], combinator); 
+        var state = TestHelper.create (); 
+        combineLatest_observable.subscribe(state.observer()); 
+        assertEquals(false,state.is_on_error());
+        observableA.on_next(1);
+        assertEquals(false,state.is_on_error());
+        observableB.on_next(2);
+        assertEquals(false,state.is_on_error());
+        observableB.on_error("error");
+   
+       // observableA.on_error("error");
+
+        assertEquals(false,state.is_completed());
+        assertEquals(true,state.is_on_error());
+    }
+
+    public  function  test_concat(){  
+        var subjectA = Subject.create();
+        var subjectB = Subject.create();
+        var concat_observable = subjectA.concat([subjectB]);     
+        var state = TestHelper.create (); 
+        concat_observable.subscribe(state.observer());  
+        subjectA.on_next(1);
+        subjectB.on_next(2);
+        subjectA.on_next(3);
+        subjectA.on_completed();
+        subjectB.on_next(4);
+        subjectB.on_next(5);
+        subjectB.on_completed();
+        assertEquals([1,3,4,5].toString(),state.on_next_values().toString());
+        assertEquals(true,state.is_completed());
+        assertEquals(false,state.is_on_error()); 
+    }
+
+    public  function  test_concat_error(){  
+        var badObservable = Observable.create(function( observer:IObserver<Int>) { 
+                                                observer.on_error('oh no'); 
+                                                return Subscription.empty();
+                                            });
+        var concat_observable = Observable.of(1).concat([Observable.of(2), badObservable]);
+        var state = TestHelper.create (); 
+        concat_observable.subscribe(state.observer());  
+        assertEquals(false,state.is_completed());
+        assertEquals(true,state.is_on_error()); 
+    }
+ 
+    public  function  test_concat_completes(){  
+        var subject = Subject.create(); 
+        var concat_observable = Observable.fromRange(1, 5).concat([Observable.fromRange(1, 5), subject]);       
+        var state = TestHelper.create (); 
+        concat_observable.subscribe(state.observer());  
+        assertEquals(false,state.is_completed());
+        subject.on_completed();
+        assertEquals(true,state.is_completed());
+        assertEquals(false,state.is_on_error()); 
+    }    
     
 }
 

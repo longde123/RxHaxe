@@ -23,6 +23,7 @@ import rx.observables.Amb;
 import rx.observables.Buffer;
 import rx.observables.Catch;
 import rx.observables.CombineLatest;
+import rx.observables.Concat;
 
 import rx.observables.MakeScheduled;
 import rx.observables.Blocking;
@@ -115,6 +116,9 @@ class Observable<T>  implements IObservable<T>
                                 }); 
     }
   
+    static public function concat<T>(observable:Observable<T>,source:Array<Observable<T>> ){ 
+        return new Concat([observable].concat(source)); 
+    }
     static public function combineLatest<T>(observable:Observable<T>,source:Array<Observable<T>>,combinator:Array<T>->T){ 
         return new CombineLatest([observable].concat(source),combinator); 
     }
