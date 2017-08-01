@@ -34,6 +34,7 @@ import rx.observables.Timestamp;
 import rx.observables.Delay;
 import rx.observables.Distinct;
 import rx.observables.DistinctUntilChanged;
+import rx.observables.Filter;
 
 import rx.observables.MakeScheduled;
 import rx.observables.Blocking;
@@ -116,6 +117,9 @@ class Observable<T>  implements IObservable<T>
                                     observer.on_completed();
                                      return Subscription.empty();
                                 }); 
+    }
+    static public function filter<T>(observable:Observable<T>,comparer:Null<T->Bool>){ 
+        return new Filter( observable ,comparer); 
     }
     static public function distinctUntilChanged<T>(observable:Observable<T>,?comparer:Null<T->T->Bool>){ 
         if(comparer==null) comparer=function (a,b)return a==b;

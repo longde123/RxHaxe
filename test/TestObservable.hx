@@ -987,6 +987,16 @@ class TestObservable extends haxe.unit.TestCase {
         assertEquals(false,state.is_on_error()); 
     }     
 
+    public  function  test_filter(){  
+        var observable = Observable.of_enum([1, 1, 2, 1, 3, 3, 2, 1, 4]);
+        var distinct_observable = observable.filter(function (x) return x% 2 ==0);     
+        var state = TestHelper.create ();  
+        distinct_observable.subscribe(state.observer());   
+        assertEquals([2,2,4].toString(),state.on_next_values().toString());
+        assertEquals(true,state.is_completed());
+        assertEquals(false,state.is_on_error()); 
+    }
+
 }
 
  
