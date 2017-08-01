@@ -850,7 +850,6 @@ class TestObservable extends haxe.unit.TestCase {
     }    
     
 
-   */
 
     public  function  test_contains(){  
 
@@ -899,6 +898,7 @@ class TestObservable extends haxe.unit.TestCase {
         assertEquals(false,state.is_on_error()); 
     }
 
+   */
 
    //8-1
     public  function  test_defaultIfEmpty(){  
@@ -926,14 +926,67 @@ class TestObservable extends haxe.unit.TestCase {
     public  function  test_delay(){  
 
         var observable = Observable.fromRange(0,5);  
-        var defaultIfEmpty_observable = observable.delay(3);     
+        var delay_observable = observable.delay(3);     
         var state = TestHelper.create (); 
         //Sys.sleep(3.1);
-        defaultIfEmpty_observable.subscribe(state.observer());   
+        delay_observable.subscribe(state.observer());   
         assertEquals([0,1,2,3,4].toString(),state.on_next_values().toString());
         assertEquals(true,state.is_completed());
         assertEquals(false,state.is_on_error()); 
     }
+
+    public  function  test_distinct(){  
+        var observable = Observable.of_enum([1, 1, 2, 1, 3, 3, 2, 1, 4]);
+        var distinct_observable = observable.distinct();     
+        var state = TestHelper.create ();  
+        distinct_observable.subscribe(state.observer());   
+        assertEquals([1,2,3,4].toString(),state.on_next_values().toString());
+        assertEquals(true,state.is_completed());
+        assertEquals(false,state.is_on_error()); 
+    }
+
+    public  function  test_distinct_completes(){  
+        var subject = Subject.create(); 
+        var distinct_observable =subject.distinct();   
+        var state = TestHelper.create (); 
+        distinct_observable.subscribe(state.observer());  
+        assertEquals(false,state.is_completed());
+        subject.on_completed();
+        assertEquals(true,state.is_completed());
+        assertEquals(false,state.is_on_error()); 
+    }    
+
+
+    public  function  test_distinctUntilChanged(){  
+        var observable = Observable.of_enum([1, 1, 3, 1, 4, 5, 5, 5]);
+        var distinct_observable = observable.distinctUntilChanged();     
+        var state = TestHelper.create ();  
+        distinct_observable.subscribe(state.observer());   
+        assertEquals([1, 3, 1, 4, 5].toString(),state.on_next_values().toString());
+        assertEquals(true,state.is_completed());
+        assertEquals(false,state.is_on_error()); 
+    }
+
+    public  function  test_distinctUntilChanged_completes(){  
+        var subject = Subject.create(); 
+        var distinct_observable =subject.distinctUntilChanged();   
+        var state = TestHelper.create (); 
+        distinct_observable.subscribe(state.observer());  
+        assertEquals(false,state.is_completed());
+        subject.on_completed();
+        assertEquals(true,state.is_completed());
+        assertEquals(false,state.is_on_error()); 
+    }   
+    public  function  test_distinctUntilChanged_comparator(){  
+        var observable = Observable.of_enum([1, 1, 3, 1, 4, 5, 5, 5]);
+        var distinct_observable = observable.distinctUntilChanged(function(x, y) return x % 2 == y % 2);     
+        var state = TestHelper.create ();  
+        distinct_observable.subscribe(state.observer());   
+        assertEquals([1, 4, 5].toString(),state.on_next_values().toString());
+        assertEquals(true,state.is_completed());
+        assertEquals(false,state.is_on_error()); 
+    }     
+
 }
 
  

@@ -32,6 +32,8 @@ import rx.observables.Throttle;
 import rx.observables.DefaultIfEmpty;
 import rx.observables.Timestamp;
 import rx.observables.Delay;
+import rx.observables.Distinct;
+import rx.observables.DistinctUntilChanged;
 
 import rx.observables.MakeScheduled;
 import rx.observables.Blocking;
@@ -115,7 +117,14 @@ class Observable<T>  implements IObservable<T>
                                      return Subscription.empty();
                                 }); 
     }
-
+    static public function distinctUntilChanged<T>(observable:Observable<T>,?comparer:Null<T->T->Bool>){ 
+        if(comparer==null) comparer=function (a,b)return a==b;
+        return new DistinctUntilChanged( observable ,comparer); 
+    }
+    static public function distinct<T>(observable:Observable<T>,?comparer:Null<T->T->Bool>){ 
+         if(comparer==null) comparer=function (a,b)return a==b;
+        return new Distinct( observable ,comparer); 
+    }
     
     static public function  delay<T>(source:Observable<T>,dueTime:Float, ?scheduler:Null<IScheduler>)
     {
@@ -131,7 +140,7 @@ class Observable<T>  implements IObservable<T>
         return new DefaultIfEmpty( observable ,source); 
     }
     static public function contains<T>(observable:Observable<T>,source:T){ 
-        return new Contains( observable ,source); 
+        return new Contains( observable ,function (v )return v==source); 
     }
     static public function concat<T>(observable:Observable<T>,source:Array<Observable<T>> ){ 
         return new Concat([observable].concat(source)); 

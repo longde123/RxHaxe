@@ -9,8 +9,8 @@ import rx.Observer;
 class Contains<T> extends Observable<Bool>
 {   
     var  _source:IObservable<T>;
-    var _hasValue:T;
-    public function new( source:IObservable<T>,hasValue:T)
+    var _hasValue:T->Bool;
+    public function new( source:IObservable<T>,hasValue:T->Bool)
     {
          super();
         _source = source;
@@ -36,7 +36,7 @@ class Contains<T> extends Observable<Bool>
             },
             function(v:T){ 
                 AtomicData.update_if(function(s:Bool){
-                    return s==false&& _hasValue==v;
+                    return s==false&& _hasValue(v);
                 },
                 function(s:Bool){
                     s=true;
