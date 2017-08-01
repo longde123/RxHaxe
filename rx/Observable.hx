@@ -25,6 +25,13 @@ import rx.observables.Catch;
 import rx.observables.CombineLatest;
 import rx.observables.Concat;
 import rx.observables.Contains;
+//8-1
+import rx.observables.Defer;
+import rx.observables.Create;
+import rx.observables.Throttle;
+import rx.observables.DefaultIfEmpty;
+import rx.observables.Timestamp;
+import rx.observables.Delay;
 
 import rx.observables.MakeScheduled;
 import rx.observables.Blocking;
@@ -41,6 +48,7 @@ import rx.observables.IObservable;
 import rx.disposables.ISubscription; 
 import rx.observers.IObserver;
 import rx.notifiers.Notification; 
+import rx.schedulers.IScheduler;
 
 //type +'a observable = 'a observer -> subscription
 /* Internal module. (see Rx.Observable)
@@ -49,18 +57,6 @@ import rx.notifiers.Notification;
  * https://github.com/Netflix/RxJava/blob/master/rxjava-core/src/main/java/rx/Observable.java
  */
  
-
-class CreateEmpty<T> extends Observable<T>
-{   
-      var f:IObserver<T>->ISubscription;
-      public function new(f:IObserver<T>->ISubscription){
-            this.f=f;
-            super();
-      }
-      override public function subscribe( observer:IObserver<T>):ISubscription{ 
-            return f(observer);
-      }
-}
 
 class Observable<T>  implements IObservable<T>
 {    
@@ -79,17 +75,20 @@ class Observable<T>  implements IObservable<T>
     static public function never() return new Never();
     static public function of_return<T>( v:T) return new Return(v);
     static public function create<T>( f:IObserver<T>->ISubscription ){ 
-        return new CreateEmpty(f);
+        return new Create(f);
+    } 
+    static public function defer<T>(_observableFactory:Void->Observable<T>){ 
+        return  new Defer(_observableFactory);
     }
     static public function of<T>(__args:T ):Observable<T> {
-        return  new CreateEmpty(function(observer:IObserver<T>){                                   
+        return  new Create(function(observer:IObserver<T>){                                   
                                     observer.on_next(__args);
                                     observer.on_completed();
                                     return Subscription.empty();
                                 });
     }
     static public function of_enum<T>(__args:Array<T> ):Observable<T> {
-        return  new CreateEmpty(function(observer:IObserver<T>){
+        return  new Create(function(observer:IObserver<T>){
                                     for(i in 0...__args.length) {
                                         observer.on_next(__args[i]);
                                     }
@@ -116,7 +115,21 @@ class Observable<T>  implements IObservable<T>
                                      return Subscription.empty();
                                 }); 
     }
-  
+
+    
+    static public function  delay<T>(source:Observable<T>,dueTime:Float, ?scheduler:Null<IScheduler>)
+    {
+        if(scheduler==null)scheduler=Scheduler.timeBasedOperations;
+        return new Delay<T>(source,Sys.time()+dueTime, scheduler );
+    }
+    static public function  timestamp<T>(source:Observable<T>,?scheduler:Null<IScheduler>)
+    {
+        if(scheduler==null)scheduler=Scheduler.timeBasedOperations;
+        return new Timestamp<T>(source,scheduler );
+    }
+    static public function defaultIfEmpty<T>(observable:Observable<T>,source:T){ 
+        return new DefaultIfEmpty( observable ,source); 
+    }
     static public function contains<T>(observable:Observable<T>,source:T){ 
         return new Contains( observable ,source); 
     }

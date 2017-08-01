@@ -599,7 +599,7 @@ class TestObservable extends haxe.unit.TestCase {
         assertEquals( true,state.is_completed());
         assertEquals( false,state.is_on_error()); 
     } 
- 
+ //7-31
     public  function test_average1(){
 
         var average_observable =  Observable.fromRange(3, 9, 2).average(); 
@@ -851,6 +851,7 @@ class TestObservable extends haxe.unit.TestCase {
     
 
    */
+
     public  function  test_contains(){  
 
         var observable = Observable.fromRange(0,5);  
@@ -861,16 +862,8 @@ class TestObservable extends haxe.unit.TestCase {
         assertEquals(true,state.is_completed());
         assertEquals(false,state.is_on_error()); 
     }
-    public  function  test_contains_errors(){  
+ 
 
-        var observable = Observable.error("oh ");
-        var contains_observable = observable.contains(3);     
-        var state = TestHelper.create (); 
-        contains_observable.subscribe(state.observer());   
-        assertEquals([].toString(),state.on_next_values().toString());
-        assertEquals(false,state.is_completed());
-        assertEquals(true,state.is_on_error()); 
-    }
     public  function  test_contains_no_values(){  
 
         var observable = Observable.empty();
@@ -881,6 +874,16 @@ class TestObservable extends haxe.unit.TestCase {
         assertEquals(true,state.is_completed());
         assertEquals(false,state.is_on_error()); 
     }
+    public  function  test_contains_errors(){  
+
+        var observable_error = Observable.error("oh ");
+        var contains_observable = observable_error.contains(3);     
+        var state = TestHelper.create (); 
+        contains_observable.subscribe(state.observer());   
+        assertEquals([].toString(),state.on_next_values().toString());
+        assertEquals(false,state.is_completed());
+        assertEquals(true,state.is_on_error()); 
+    } 
     public  function  test_contains_null(){  
   
         var contains_observable =    Observable.create(function( observer:IObserver<Null<Int>>) {
@@ -892,6 +895,42 @@ class TestObservable extends haxe.unit.TestCase {
         var state = TestHelper.create (); 
         contains_observable.subscribe(state.observer());   
         assertEquals([null].toString(),state.on_next_values().toString());
+        assertEquals(true,state.is_completed());
+        assertEquals(false,state.is_on_error()); 
+    }
+
+
+   //8-1
+    public  function  test_defaultIfEmpty(){  
+
+        var observable = Observable.fromRange(0,5);  
+        var defaultIfEmpty_observable = observable.defaultIfEmpty(3);     
+        var state = TestHelper.create (); 
+        defaultIfEmpty_observable.subscribe(state.observer());   
+        assertEquals([0,1,2,3,4].toString(),state.on_next_values().toString());
+        assertEquals(true,state.is_completed());
+        assertEquals(false,state.is_on_error()); 
+    }
+
+    public  function  test_defaultIfEmpty_no_values(){  
+
+        var observable = Observable.empty();  
+        var defaultIfEmpty_observable = observable.defaultIfEmpty(3);     
+        var state = TestHelper.create (); 
+        defaultIfEmpty_observable.subscribe(state.observer());   
+        assertEquals([3].toString(),state.on_next_values().toString());
+        assertEquals(true,state.is_completed());
+        assertEquals(false,state.is_on_error()); 
+    }
+
+    public  function  test_delay(){  
+
+        var observable = Observable.fromRange(0,5);  
+        var defaultIfEmpty_observable = observable.delay(3);     
+        var state = TestHelper.create (); 
+        //Sys.sleep(3.1);
+        defaultIfEmpty_observable.subscribe(state.observer());   
+        assertEquals([0,1,2,3,4].toString(),state.on_next_values().toString());
         assertEquals(true,state.is_completed());
         assertEquals(false,state.is_on_error()); 
     }

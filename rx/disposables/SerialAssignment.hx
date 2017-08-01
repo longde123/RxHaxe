@@ -4,7 +4,7 @@ import rx.disposables.Assignable.AssignableState;
 import rx.disposables.Assignable;
 import rx.disposables.Assignable;
 import rx.Subscription; 
-class Serial  extends Assignable
+class SerialAssignment  extends Assignable
 {
     public function new()
     {
@@ -13,7 +13,7 @@ class Serial  extends Assignable
    
     static public function create ()
     {
-        return new Serial();
+        return new SerialAssignment();
     } 
     public function  set(subscription :ISubscription)
     {   

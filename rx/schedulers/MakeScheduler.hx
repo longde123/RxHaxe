@@ -35,7 +35,7 @@ class  MakeScheduler   implements IScheduler  {
             if (parent_subscription.is_unsubscribed()){
                 return Subscription.empty();
             }else{
-                return baseScheduler.schedule_absolute(0,function (){
+                return baseScheduler.schedule_absolute(null,function (){
                     return k(function () return  schedule_k(child_subscription,parent_subscription,k));
                 });
             };
@@ -46,7 +46,7 @@ class  MakeScheduler   implements IScheduler  {
     public function  schedule_recursive (cont:(Void->ISubscription)->ISubscription){
             var child_subscription=MultipleAssignment.create(Subscription.empty());
             var parent_subscription =Composite.create([child_subscription]);
-            var scheduled_subscription = baseScheduler.schedule_absolute(0,function () return schedule_k(child_subscription,parent_subscription,cont));    
+            var scheduled_subscription = baseScheduler.schedule_absolute(null,function () return schedule_k(child_subscription,parent_subscription,cont));    
             parent_subscription.add( scheduled_subscription );
             return parent_subscription;
     }

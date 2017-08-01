@@ -1,7 +1,7 @@
 package rx.observables;
 import rx.observables.IObservable;
 import rx.disposables.ISubscription; 
-import rx.disposables.Serial; 
+import rx.disposables.SerialAssignment; 
 import rx.observers.IObserver;
 import rx.notifiers.Notification;
 import rx.Observer;
@@ -17,7 +17,7 @@ class Catch<T> extends Observable<T>
         _errorHandler=errorHandler;
     } 
     override public function subscribe( observer:IObserver<T>):ISubscription{ 
-        var serialDisposable = Serial.create();
+        var serialDisposable = SerialAssignment.create();
         
         var catch_observer = Observer.create(
             function(){  
