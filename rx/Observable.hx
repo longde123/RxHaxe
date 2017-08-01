@@ -197,7 +197,7 @@ class Observable<T>  implements IObservable<T>
     static public function append<T>(observable1:Observable<T> ,observable2:Observable<T> ){ 
         return new Append(observable1,observable2);
     }
-    static public function map<T>(observable:Observable<T>,f :T->T){ 
+    static public function map<T,R>(observable:Observable<T>,f :T->R){ 
         return new Map(observable,f);
     }
 
@@ -206,21 +206,7 @@ class Observable<T>  implements IObservable<T>
     }
   
     static public function bind<T,R>(observable:Observable<T>,f:T->Observable<R> ){ 
-        
-            // o = map(observable,f)
-         var o = Observable.create(function( observer:IObserver<Observable<R>>) {
-            observable.subscribe(Observer.create(
-                                                  null,
-                                                  null,
-                                                  function(v:T){
-                                                          observer.on_next(f(v)); 
-                                                  })
-                                );
-           
-            observer.on_completed();
-            return Subscription.empty();
-        });
-        return merge(o);
+        return merge(map(observable,f));
     } 
 }
    
