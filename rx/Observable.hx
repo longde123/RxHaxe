@@ -1,6 +1,22 @@
 package rx;
 import rx.Core.RxObserver;
 import rx.Core.RxSubscription;
+//Creating Observables
+
+import rx.observables.Create;// create an Observable from scratch by calling observer methods programmatically
+import rx.observables.Defer;//  — do not create the Observable until the observer subscribes, and create a fresh Observable for each observer
+import rx.observables.Empty;
+import rx.observables.Never;
+import rx.observables.Error;//  — create Observables that have very precise and limited behavior
+//From;// — convert some other object or data structure into an Observable
+//Interval;//  — create an Observable that emits a sequence of integers spaced by a particular time interval
+//Just;//  — convert an object or a set of objects into an Observable that emits that or those objects
+//Range;//  — create an Observable that emits a range of sequential integers
+//Repeat;//  — create an Observable that emits a particular item or sequence of items repeatedly
+//Start;//  — create an Observable that emits the return value of a function
+//Timer;//  — create an Observable that emits a single item after a given delay
+
+
 import rx.observables.Empty;
 import rx.observables.Error;
 import rx.observables.Never;
@@ -9,7 +25,7 @@ import rx.observables.Return;
 import rx.observables.Append;
 
 import rx.observables.Dematerialize;
-import rx.observables.Drop;
+import rx.observables.Skip;
 import rx.observables.Length;
 import rx.observables.Map;
 import rx.observables.Materialize;
@@ -37,6 +53,11 @@ import rx.observables.DistinctUntilChanged;
 import rx.observables.Filter;
 import rx.observables.Find;
 import rx.observables.ElementAt;
+//8-2
+import rx.observables.First;
+import rx.observables.Last;
+import rx.observables.IgnoreElements;
+import rx.observables.SkipUntil;
 
 
 import rx.observables.MakeScheduled;
@@ -87,11 +108,7 @@ class Observable<T>  implements IObservable<T>
         return  new Defer(_observableFactory);
     }
     static public function of<T>(__args:T ):Observable<T> {
-        return  new Create(function(observer:IObserver<T>){                                   
-                                    observer.on_next(__args);
-                                    observer.on_completed();
-                                    return Subscription.empty();
-                                });
+        return  new Return(__args );
     }
     static public function of_enum<T>(__args:Array<T> ):Observable<T> {
         return  new Create(function(observer:IObserver<T>){
@@ -146,6 +163,13 @@ class Observable<T>  implements IObservable<T>
         if(scheduler==null)scheduler=Scheduler.timeBasedOperations;
         return new Timestamp<T>(source,scheduler );
     }
+    
+    static public function last<T>(observable:Observable<T>,?source:Null<T>){ 
+        return new Last(observable,source);
+    } 
+    static public function first<T>(observable:Observable<T>,?source:Null<T>){ 
+        return new First(observable,source);
+    } 
     static public function defaultIfEmpty<T>(observable:Observable<T>,source:T){ 
         return new DefaultIfEmpty( observable ,source); 
     }
@@ -183,7 +207,10 @@ class Observable<T>  implements IObservable<T>
         return new Length(observable);
     }
     static public function drop<T>(observable:Observable<T>,n:Int ){ 
-        return new Drop(observable,n);
+        return skip(observable,n);
+    }
+    static public function skip<T>(observable:Observable<T>,n:Int ){ 
+        return new Skip(observable,n);
     }
     static public function take<T>(observable:Observable<T>,n:Int ){ 
         return new Take(observable,n);
@@ -204,6 +231,10 @@ class Observable<T>  implements IObservable<T>
     static public function merge<T>(observable:Observable<Observable<T>> ){ 
         return  new Merge(observable);
     }
+  
+    static public function flatMap<T,R>(observable:Observable<T>,f:T->Observable<R> ){ 
+        return bind(observable,f);
+    } 
   
     static public function bind<T,R>(observable:Observable<T>,f:T->Observable<R> ){ 
         return merge(map(observable,f));
