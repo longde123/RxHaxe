@@ -12,7 +12,7 @@ class Scan<T,R> extends Observable<R>
     var _source:IObservable<T>;
     var _accumulator:R->T->R;    
     var _seed:Null<R>;
-    public function new( source:IObservable<T>,accumulator:R->T->R,?seed:Null<R>)
+    public function new( source:IObservable<T>,seed:Null<R>,accumulator:R->T->R)
     {
          super();
         _source = source;
@@ -28,7 +28,7 @@ class Scan<T,R> extends Observable<R>
             function(value:T){
                 if (isFirst){
                     isFirst = false;
-                    accumulation = _seed;
+                    accumulation = _accumulator(_seed, value);             
                 }
                 else{
                     accumulation = _accumulator(accumulation, value);

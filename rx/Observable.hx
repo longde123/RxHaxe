@@ -165,8 +165,8 @@ class Observable<T>  implements IObservable<T>
         return new Timestamp<T>(source,scheduler );
     }
     
-    static public function scan<T,R>(observable:Observable<T>,accumulator:R->T->R,?seed:Null<R>){ 
-        return new Scan(observable,accumulator ,seed);
+    static public function scan<T,R>(observable:Observable<T>,seed:Null<R>,accumulator:R->T->R){ 
+        return new Scan(observable,seed,accumulator );
     } 
     static public function last<T>(observable:Observable<T>,?source:Null<T>){ 
         return new Last(observable,source);
