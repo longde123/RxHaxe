@@ -60,6 +60,8 @@ import rx.observables.IgnoreElements;
 import rx.observables.SkipUntil;
 import rx.observables.Scan;
 
+//8-3
+import rx.observables.TakeUntil;
 
 import rx.observables.MakeScheduled;
 import rx.observables.Blocking;
@@ -216,8 +218,14 @@ class Observable<T>  implements IObservable<T>
     static public function skip<T>(observable:Observable<T>,n:Int ){ 
         return new Skip(observable,n);
     }
+    static public function skip_until<T>(observable1:Observable<T>, observable2:Observable<T> ){ 
+        return new SkipUntil(observable1, observable2);
+    }
     static public function take<T>(observable:Observable<T>,n:Int ){ 
         return new Take(observable,n);
+    }
+    static public function take_until<T>(observable1:Observable<T>, observable2:Observable<T> ){ 
+        return new TakeUntil(observable1, observable2);
     }
     static public function take_last<T>(observable:Observable<T>,n:Int ){ 
         return new TakeLast(observable,n);
