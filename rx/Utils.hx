@@ -32,11 +32,11 @@ class Utils {
                 if (delay > 0 ){
                    Sys.sleep(delay);
                 }
-                return Subscription.create(function(){
-                        action();
-                });
+                action();
+                return   Subscription.empty();
             }
             #else
+
 
             return function () {
                 var t:Null<Timer>=null;
