@@ -1,7 +1,5 @@
 package test;
 import rx.AsyncLock;
-import cpp.vm.Thread; 
-import cpp.Lib;
 import rx.Observer;
 
 

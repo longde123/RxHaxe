@@ -1,7 +1,5 @@
 package test;
 import rx.AsyncLock;
-import cpp.vm.Thread; 
-import cpp.Lib;
 class TestAsyncLock extends haxe.unit.TestCase {
 
     public function test_wait_graceful(){

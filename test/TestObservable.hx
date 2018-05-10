@@ -1,7 +1,6 @@
 package test;
+import rx.Observable;
 import rx.AtomicData;
-import cpp.vm.Thread; 
-import cpp.Lib;
 import rx.Subscription; 
 import rx.Observer;
 using rx.Observable; 
@@ -17,24 +16,25 @@ import rx.schedulers.IScheduler;
 import rx.observables.MakeScheduled;
 import rx.Subject;
 class SchedulerBase implements IScheduler {
+
     public var schedule_count:Int;
     public function new(){
         schedule_count=0;
     } 
     public function now():Float{ return 0.0;}
     
-    public function  schedule_absolute (due_time:Null<Float>, action:Void->ISubscription ):ISubscription
+    public function  schedule_absolute (due_time:Null<Float>, action:Void->Void ):ISubscription
     {
         schedule_count=Utils.incr( schedule_count);
         return Scheduler.immediate.schedule_absolute(due_time, action);
     }
-    public  function  schedule_relative( delay: Null<Float> ,action:Void->ISubscription   ): ISubscription{
+    public  function  schedule_relative( delay: Null<Float> ,action:Void->Void   ): ISubscription{
         return Subscription.empty();
     }
-    public  function  schedule_recursive( action:(Void->ISubscription)->ISubscription):ISubscription{
+    public  function  schedule_recursive( action:(Void->Void)->Void):ISubscription{
         return Subscription.empty();
     }
-    public  function  schedule_periodically( initial_delay:Null<Float> , period: Null<Float> ,action:Void-> ISubscription  ): ISubscription{
+    public  function  schedule_periodically( initial_delay:Null<Float> , period: Null<Float> ,action:Void-> Void  ): ISubscription{
         return Subscription.empty();
     }
 }
@@ -544,7 +544,7 @@ class TestObservable extends haxe.unit.TestCase {
        
     } 
      public  function  test_never(){ 
-        var observable = Observable.never();
+        var observable = Observable.of_never();
           
         var state = TestHelper.create (); 
         observable.subscribe(state.observer());
@@ -573,32 +573,6 @@ class TestObservable extends haxe.unit.TestCase {
         assertEquals( false,state.is_on_error()); 
     }
 
-    public function   test_schedule_periodically ()
-    {
-         Scheduler.test.reset();
-        var  counter =   0 ;
-        var __unsubscribe = Scheduler.test.schedule_periodically( 0.1,0.1,function (){
-              counter=Utils.incr(counter);
-              return Subscription.empty();
-            });
-        Scheduler.test.advance_time_to(0.3);
-        __unsubscribe.unsubscribe ();
-        assertEquals(2 ,counter);  
-    }
-
-
-    public  function  test_with_test_scheduler (){ 
-        Scheduler.test.reset();
-        var interval = Observable.test.interval (1.0 );
-        var observable = interval.take( 5 ) ;
-        var state = TestHelper.create (); 
-        observable.subscribe(state.observer()); 
-        Scheduler.test.advance_time_to( 5.0);
-
-        assertEquals( [0,1,2,3,4].toString(),state.on_next_values().toString());
-        assertEquals( true,state.is_completed());
-        assertEquals( false,state.is_on_error()); 
-    } 
  //7-31
     public  function test_average1(){
 
@@ -898,7 +872,7 @@ class TestObservable extends haxe.unit.TestCase {
         assertEquals(false,state.is_on_error()); 
     }
 
-   */
+
 
    //8-1
     public  function  test_defaultIfEmpty(){  
@@ -923,16 +897,16 @@ class TestObservable extends haxe.unit.TestCase {
         assertEquals(false,state.is_on_error()); 
     }
 
-    public  function  test_delay(){  
+    public  function  test_delay(){
 
-        var observable = Observable.fromRange(0,5);  
-        var delay_observable = observable.delay(3);     
-        var state = TestHelper.create (); 
+        var observable = Observable.fromRange(0,5);
+        var delay_observable = observable.delay(0);
+        var state = TestHelper.create ();
         //Sys.sleep(3.1);
-        delay_observable.subscribe(state.observer());   
+        delay_observable.subscribe(state.observer());
         assertEquals([0,1,2,3,4].toString(),state.on_next_values().toString());
         assertEquals(true,state.is_completed());
-        assertEquals(false,state.is_on_error()); 
+        assertEquals(false,state.is_on_error());
     }
 
     public  function  test_distinct(){  
@@ -996,7 +970,32 @@ class TestObservable extends haxe.unit.TestCase {
         assertEquals(true,state.is_completed());
         assertEquals(false,state.is_on_error()); 
     }
+*/
+    public function   test_schedule_periodically ()
+    {
+        Scheduler.test.reset();
+        var  counter =   0 ;
+        var __unsubscribe = Scheduler.test.schedule_periodically( 0.1,0.1,function (){
+            counter=Utils.incr(counter);
+        });
+        Scheduler.test.advance_time_to(0.299);
+        __unsubscribe.unsubscribe ();
+        assertEquals(2 ,counter);
+    }
 
+
+    public  function  test_with_test_scheduler (){
+        Scheduler.test.reset();
+        var interval = Observable.test.interval (1.0 );
+        var observable = interval.take( 5 ) ;
+        var state = TestHelper.create ();
+        observable.subscribe(state.observer());
+        Scheduler.test.advance_time_to( 5.0);
+
+        assertEquals( [0,1,2,3,4].toString(),state.on_next_values().toString());
+        assertEquals( true,state.is_completed());
+        assertEquals( false,state.is_on_error());
+    }
 }
 
  

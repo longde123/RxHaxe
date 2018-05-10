@@ -8,14 +8,14 @@ import rx.Subject;
 import rx.Subscription;
 
 
-typedef  RxSubject<T> = RxObserver<T>->RxObservable<T>;
+typedef RxSubject<T> = RxObserver<T> -> RxObservable<T>;
 //type 'a subject = 'a observer * 'a observable
-typedef  RxObservable<T> = RxObserver<T>->RxSubscription;
-typedef  RxSubscription  = Void->Void;
-typedef  RxObserver<T> ={
+typedef RxObservable<T> = RxObserver<T> -> RxSubscription;
+typedef RxSubscription = Void -> Void;
+typedef RxObserver<T> = {
     //(unit -> unit) * (exn -> unit) * ('a -> unit)
-    var onCompleted:Void->Void;
-    var onError:String->Void;
-    var onNext:T->Void; 
+    var onCompleted:Void -> Void;
+    var onError:String -> Void;
+    var onNext:T -> Void;
 }
  

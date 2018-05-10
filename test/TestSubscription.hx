@@ -10,8 +10,7 @@ import rx.disposables.SingleAssignment;
 import rx.disposables.ISubscription;
 
 import rx.Subscription;
-import cpp.vm.Thread; 
-import cpp.Lib;
+import rx.Thread;
 class TestSubscription extends haxe.unit.TestCase {
 
     function incr(i) return  i+1;
@@ -42,7 +41,7 @@ class TestSubscription extends haxe.unit.TestCase {
         assertEquals(2,counter);  
     }
 
-
+#if cpp
     public function  test_composite_subscription_unsubscribe_all (){
         var counter =   0 ;
         var composite_subscription = Composite.create([] );
@@ -60,7 +59,7 @@ class TestSubscription extends haxe.unit.TestCase {
         Sys.sleep( 0.1);
         assertEquals(count,counter);   
   }
-
+#end
   public function   test_composite_subscription_exception (){
     var counter =  0 ;
     var ex =  "failed on first one";
@@ -123,7 +122,7 @@ class TestSubscription extends haxe.unit.TestCase {
         assertEquals(1,counter);  
     }
 
-    
+    #if cpp
  public function test_composite_subscription_unsubscribe_idempotence_concurrently(){
     var counter =  0 ;
     var s  =  Composite.create([] );
@@ -139,7 +138,7 @@ class TestSubscription extends haxe.unit.TestCase {
     Sys.sleep( 0.1);
     assertEquals(1,counter);   
 }
-   
+  #end
 public function  test_multiple_assignment_subscription(){
     var m =MultipleAssignment.create(Subscription.empty());
     var unsub1 =  false;
