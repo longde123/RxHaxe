@@ -9,17 +9,17 @@ typedef CombineLatestState<T> = {
     var latest:Array<T>;
     var counter:Int;
 }
-class CombineLatest<T> extends Observable<T> {
+class CombineLatest<T,R> extends Observable<R> {
     var _source:Array<Observable<T>>;
-    var _combinator:Array<T> -> T;
+    var _combinator:Array<T> -> R;
 
-    public function new(source:Array<Observable<T>>, combinator:Array<T> -> T) {
+    public function new(source:Array<Observable<T>>, combinator:Array<T> -> R) {
         super();
         _source = source;
         _combinator = combinator;
     }
 
-    override public function subscribe(observer:IObserver<T>):ISubscription {
+    override public function subscribe(observer:IObserver<R>):ISubscription {
         var __latest = new Array<T>();
         for (i in 0..._source.length) {
             __latest[i] = null;

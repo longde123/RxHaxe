@@ -102,7 +102,7 @@ class Observable<T> implements IObservable<T> {
     public static var immediate:Immediate = new Immediate();
     public static var test:Test = new Test();
 
-    static public function empty() return new Empty();
+    static public function empty<T>() return new Empty<T>();
 
     static public function error(e:String) return new Error(e);
 
@@ -204,7 +204,7 @@ class Observable<T> implements IObservable<T> {
         return new Concat([observable].concat(source));
     }
 
-    static public function combineLatest<T>(observable:Observable<T>, source:Array<Observable<T>>, combinator:Array<T> -> T) {
+    static public function combineLatest<T,R>(observable:Observable<T>, source:Array<Observable<T>>, combinator:Array<T> -> R) {
         return new CombineLatest([observable].concat(source), combinator);
     }
 

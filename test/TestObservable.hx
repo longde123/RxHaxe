@@ -50,7 +50,7 @@ class ScheduledObservable extends  MakeScheduled
    
 
 class TestObservable extends haxe.unit.TestCase {
-/*
+
     public  function test_of_enum  (){
         var items = ["one", "two","three"] ;
         var observable = Observable.currentThread.of_enum( items) ;    
@@ -496,33 +496,7 @@ class TestObservable extends haxe.unit.TestCase {
         assertEquals( false,state.is_on_error()); 
        
     } 
-    public  function  test_bind (){
-        var  f =function(v:Int) return   Observable.create(function( observer:IObserver<String>) {
-            if(v==42){
-              observer.on_next( "42");
-              observer.on_next("Answer to the Ultimate Question of Life, the Universe, and Everything");
-            }else
-            {
-              observer.on_next( v+"");
-            }
-            observer.on_completed();
-            return Subscription.empty();
-        }); 
-        var observable = Observable.create(function( observer:IObserver<Int>) {
-            observer.on_next(41);
-            observer.on_next(42);
-            observer.on_next(43);
-            observer.on_completed();
-            return Subscription.empty();
-        }); 
-        var bind_observable =observable.bind( f);
-        var state = TestHelper.create (); 
-        bind_observable.subscribe(state.observer());
-        assertEquals( ["41","42","Answer to the Ultimate Question of Life, the Universe, and Everything","43"].toString(),state.on_next_values().toString());
-        assertEquals( true,state.is_completed());
-        assertEquals( false,state.is_on_error());  
 
-    } 
     
     public  function  test_empty(){ 
      
@@ -839,7 +813,7 @@ class TestObservable extends haxe.unit.TestCase {
 
     public  function  test_contains_no_values(){  
 
-        var observable = Observable.empty();
+        var observable:Observable<Int> = Observable.empty();
         var contains_observable = observable.contains(3);     
         var state = TestHelper.create (); 
         contains_observable.subscribe(state.observer());   
@@ -970,7 +944,34 @@ class TestObservable extends haxe.unit.TestCase {
         assertEquals(true,state.is_completed());
         assertEquals(false,state.is_on_error()); 
     }
-*/
+
+    public  function  test_bind (){
+        var  f =function(v:Int) return   Observable.create(function( observer:IObserver<String>) {
+            if(v==42){
+                observer.on_next( "42");
+                observer.on_next("Answer to the Ultimate Question of Life, the Universe, and Everything");
+            }else
+            {
+                observer.on_next( v+"");
+            }
+            observer.on_completed();
+            return Subscription.empty();
+        });
+        var observable = Observable.create(function( observer:IObserver<Int>) {
+            observer.on_next(41);
+            observer.on_next(42);
+            observer.on_next(43);
+            observer.on_completed();
+            return Subscription.empty();
+        });
+        var bind_observable =observable.bind( f);
+        var state = TestHelper.create ();
+        bind_observable.subscribe(state.observer());
+        assertEquals( ["41","42","Answer to the Ultimate Question of Life, the Universe, and Everything","43"].toString(),state.on_next_values().toString());
+        assertEquals( true,state.is_completed());
+        assertEquals( false,state.is_on_error());
+
+    }
     public function   test_schedule_periodically ()
     {
         Scheduler.test.reset();
