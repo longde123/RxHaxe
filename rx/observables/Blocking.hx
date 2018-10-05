@@ -50,7 +50,7 @@ class Blocking<T> {
     }
 
     static public function single<T>(observable:IObservable<T>) {
-        var _enum = to_enum(new Single(observable)).next();
+        var _enum = to_enum(new rx.observables.Single(observable)).next();
         return _enum;
     }
 
