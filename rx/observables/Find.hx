@@ -1,48 +1,48 @@
 package rx.observables;
 import rx.observables.IObservable;
-import rx.disposables.ISubscription; 
-import rx.disposables.SingleAssignment; 
+import rx.disposables.ISubscription;
+import rx.disposables.SingleAssignment;
 import rx.observers.IObserver;
 import rx.notifiers.Notification;
 import rx.Observer;
- 
-class Find<T> extends Observable<T>
-{   
-    var  _source:IObservable<T>;
-    var _predicate:T->Bool;
-    public function new( source:IObservable<T>,predicate:T->Bool)
-    {
-         super();
+
+class Find<T> extends Observable<T> {
+    var _source:IObservable<T>;
+    var _predicate:T -> Bool;
+
+    public function new(source:IObservable<T>, predicate:T -> Bool) {
+        super();
         _source = source;
-        _predicate=predicate;
-    } 
-    override public function subscribe( observer:IObserver<T>):ISubscription{   
-        
-        var __subscription=SingleAssignment.create();
+        _predicate = predicate;
+    }
+
+    override public function subscribe(observer:IObserver<T>):ISubscription {
+
+        var __subscription = SingleAssignment.create();
         var find_observer = Observer.create(
-            function(){   
+            function() {
                 observer.on_completed();
             },
-            function(e:String){
+            function(e:String) {
                 observer.on_error(e);
-          
+
             },
-            function(value:T){ 
-                var isPassed = false;   
-                try{
+            function(value:T) {
+                var isPassed = false;
+                try {
                     isPassed = _predicate(value);
                 }
-                catch (  ex:String){   
+                catch (ex:String) {
                     observer.on_error(ex);
                     return;
                 }
-                if (isPassed){
+                if (isPassed) {
                     observer.on_next(value);
                     observer.on_completed();
                     __subscription.unsubscribe();
-                }            
+                }
             }
-        ); 
+        );
         __subscription.set(_source.subscribe(find_observer));
         return __subscription;
     }

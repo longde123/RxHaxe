@@ -1,7 +1,5 @@
 package test;
 import rx.AtomicData;
-import cpp.vm.Thread; 
-import cpp.Lib;
 import rx.Core.RxObserver;
 import rx.observers.ObserverBase;
 import rx.observers.CheckedObserver;

@@ -1,7 +1,6 @@
 package test;
 import rx.AtomicData;
-import cpp.vm.Thread; 
-import cpp.Lib;
+import rx.Thread;
 class TestAtomicData extends haxe.unit.TestCase {
 
 public  function test_unsafe_get (){
@@ -41,7 +40,7 @@ public  function test_compare_and_set(){
   assertEquals( 0 ,old_content);
   assertEquals( 1, AtomicData.get(v));
 }
-
+#if cpp
 public  function test_concurrent_update(){
     var v = AtomicData.create( 0 );
     var count = 10;
@@ -62,6 +61,6 @@ public  function test_concurrent_update(){
   assertEquals( count ,AtomicData.get(v)); 
 }
 
-
+#end
 
 }

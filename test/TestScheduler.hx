@@ -1,7 +1,5 @@
 package test;
 import rx.AtomicData;
-import cpp.vm.Thread; 
-import cpp.Lib;
 import rx.Core.RxObserver;
 import rx.observers.ObserverBase;
 import rx.observers.CheckedObserver;
@@ -35,9 +33,8 @@ class TestScheduler extends haxe.unit.TestCase {
     public function test_immediate_schedule_ (){
         var str="";
         Scheduler.immediate.schedule_absolute(null,function(){ 
-            Scheduler.immediate.schedule_absolute(null,function(){ str+=(2);    return Subscription.empty();});
+            Scheduler.immediate.schedule_absolute(null,function(){ str+=(2);   });
             str+=(1);
-            return Subscription.empty();
         });
         //trace 2 1
         assertEquals(str, "21");
@@ -88,7 +85,7 @@ class TestScheduler extends haxe.unit.TestCase {
         });    
         assertTrue(ran);     
     }
-   
+#if cpp
     public function  test_current_thread_schedule_relative_action_due  (){
       var id = Utils.current_thread_id ();
       var ran =  false;
@@ -265,7 +262,7 @@ public function  test_current_thread_schedule_nested_actions (){
     Sys.sleep(0.1); 
     assertTrue(true);
   }
-
+#end
   
 }
 
