@@ -55,7 +55,7 @@ class AsyncLock {
                     if (l.queue.isEmpty()) {
 
                         var value = function(l:RxAsyncLockState) { l.is_acquired = false; return l;}(lock.data);
-                        AtomicData.unsafe_set(value, lock);
+                        AtomicData.unsafe_set(cast value, lock);
                         return null;
                     } else {
                         return l.queue.pop() ;
